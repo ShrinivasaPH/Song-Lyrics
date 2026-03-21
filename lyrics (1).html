@@ -148,6 +148,46 @@
   @media(max-width:900px){:root{--sidebar-w:250px}.hero,.songs-container{padding-left:28px;padding-right:28px}.hero h2{font-size:38px}}
   @media(max-width:680px){.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.hero,.songs-container{padding-left:18px;padding-right:18px}.hero h2{font-size:30px}.toggle-sidebar{position:fixed;bottom:22px;right:22px;z-index:200;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--saffron),var(--rose));border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(244,98,15,.4);display:flex;align-items:center;justify-content:center}}
   @media(min-width:681px){.toggle-sidebar{display:none}}
+
+/* ── Sticky bottom player ── */
+#sticky-player {
+  position: fixed;
+  bottom: 0; left: var(--sidebar-w); right: 0;
+  background: linear-gradient(135deg, #fff8ee, #fff0f5);
+  border-top: 2px solid var(--border-s);
+  box-shadow: 0 -4px 24px rgba(244,98,15,0.15);
+  padding: 10px 32px;
+  display: none;
+  align-items: center;
+  gap: 16px;
+  z-index: 200;
+  flex-wrap: wrap;
+}
+#sticky-player.visible { display: flex; }
+#sticky-player .sp-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--saffron); flex-shrink: 0;
+}
+#sticky-player .sp-title {
+  font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700;
+  color: var(--ink); flex: 1; min-width: 120px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#sticky-player audio {
+  flex: 2; min-width: 200px; max-width: 480px;
+  height: 34px; accent-color: var(--saffron);
+}
+#sticky-player .sp-close {
+  background: none; border: none; font-size: 18px;
+  color: var(--muted); cursor: pointer; flex-shrink: 0;
+  line-height: 1; padding: 4px 6px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+#sticky-player .sp-close:hover { color: var(--rose); background: rgba(232,24,90,0.08); }
+/* Push main content up so sticky player doesn't cover last card */
+.songs-container { padding-bottom: 100px; }
+@media(max-width:680px) { #sticky-player { left: 0; padding: 10px 16px; } }
+
 </style>
 </head>
 <body>
@@ -1483,6 +1523,83 @@ function initScrollSpy(){
 }
 
 buildPage();
+
+/* ── Sticky bottom player sync ── */
+function initStickyPlayer() {
+  const stickyBar   = document.getElementById('sticky-player');
+  const stickyAudio = document.getElementById('sp-audio');
+  const stickyTitle = document.getElementById('sp-title');
+  let activeSource  = null;
+
+  document.addEventListener('play', function(e) {
+    const src = e.target;
+    // Only react to card audio elements, not the sticky player itself
+    if(src === stickyAudio) return;
+    if(src.tagName !== 'AUDIO') return;
+
+    // Find which song card this audio belongs to
+    const card = src.closest('.song-card');
+    if(!card) return;
+    const titleEl = card.querySelector('.song-title-block h2');
+    const title   = titleEl ? titleEl.textContent : 'Now Playing';
+
+    // If switching songs, pause the previous sticky audio
+    if(activeSource && activeSource !== src) {
+      stickyAudio.pause();
+    }
+    activeSource = src;
+
+    // Sync src and time
+    if(stickyAudio.src !== src.src) {
+      stickyAudio.src = src.currentSrc || src.src;
+      stickyAudio.load();
+    }
+    stickyTitle.textContent = title;
+    stickyAudio.currentTime = src.currentTime;
+    stickyAudio.play();
+    stickyBar.classList.add('visible');
+
+    // Keep times in sync while playing (card → sticky)
+    src._syncInterval = setInterval(() => {
+      if(!src.paused) stickyAudio.currentTime = src.currentTime;
+    }, 1000);
+
+  }, true);
+
+  document.addEventListener('pause', function(e) {
+    if(e.target === stickyAudio) return;
+    if(e.target.tagName !== 'AUDIO') return;
+    clearInterval(e.target._syncInterval);
+    stickyAudio.pause();
+  }, true);
+
+  // Sticky player seeking → sync back to card
+  stickyAudio.addEventListener('seeked', function() {
+    if(activeSource) activeSource.currentTime = stickyAudio.currentTime;
+  });
+
+  // Sticky play/pause → mirror to card
+  stickyAudio.addEventListener('play',  () => { if(activeSource && activeSource.paused) activeSource.play(); });
+  stickyAudio.addEventListener('pause', () => { if(activeSource && !activeSource.paused) activeSource.pause(); });
+}
+
+function closeSticky() {
+  const stickyAudio = document.getElementById('sp-audio');
+  stickyAudio.pause();
+  document.getElementById('sticky-player').classList.remove('visible');
+}
+
+initStickyPlayer();
+
 </script>
+
+<!-- Sticky bottom player -->
+<div id="sticky-player">
+  <span class="sp-label">▶ Now Playing</span>
+  <span class="sp-title" id="sp-title">—</span>
+  <audio id="sp-audio" controls></audio>
+  <button class="sp-close" onclick="closeSticky()" title="Close">✕</button>
+</div>
+
 </body>
 </html>

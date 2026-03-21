@@ -1525,71 +1525,89 @@ function initScrollSpy(){
 buildPage();
 
 /* ── Sticky bottom player sync ── */
+// audio play/pause events do NOT bubble, so we attach directly to each
+// card audio element after buildPage() creates them.
+// We also defer until after the sticky HTML div is in the DOM.
+
+let _stickyActive = null;
+let _syncInterval = null;
+
 function initStickyPlayer() {
   const stickyBar   = document.getElementById('sticky-player');
   const stickyAudio = document.getElementById('sp-audio');
   const stickyTitle = document.getElementById('sp-title');
-  let activeSource  = null;
+  if(!stickyBar || !stickyAudio){ return; }
 
-  document.addEventListener('play', function(e) {
-    const src = e.target;
-    // Only react to card audio elements, not the sticky player itself
-    if(src === stickyAudio) return;
-    if(src.tagName !== 'AUDIO') return;
+  // Attach to every card audio element
+  document.querySelectorAll('.media-bar audio').forEach(cardAudio => {
+    // Play on card → mirror to sticky
+    cardAudio.addEventListener('play', function() {
+      const card    = this.closest('.song-card');
+      const titleEl = card ? card.querySelector('.song-title-block h2') : null;
+      const title   = titleEl ? titleEl.textContent : 'Now Playing';
 
-    // Find which song card this audio belongs to
-    const card = src.closest('.song-card');
-    if(!card) return;
-    const titleEl = card.querySelector('.song-title-block h2');
-    const title   = titleEl ? titleEl.textContent : 'Now Playing';
+      // Pause previous if different track
+      if(_stickyActive && _stickyActive !== this) {
+        _stickyActive.pause();
+        clearInterval(_syncInterval);
+      }
+      _stickyActive = this;
 
-    // If switching songs, pause the previous sticky audio
-    if(activeSource && activeSource !== src) {
-      stickyAudio.pause();
-    }
-    activeSource = src;
+      // Load new src into sticky if needed
+      const newSrc = this.currentSrc || this.src;
+      if(stickyAudio.getAttribute('data-src') !== newSrc) {
+        stickyAudio.src = newSrc;
+        stickyAudio.setAttribute('data-src', newSrc);
+        stickyAudio.load();
+      }
+      stickyTitle.textContent = title;
+      stickyAudio.currentTime = this.currentTime;
+      stickyBar.classList.add('visible');
 
-    // Sync src and time
-    if(stickyAudio.src !== src.src) {
-      stickyAudio.src = src.currentSrc || src.src;
-      stickyAudio.load();
-    }
-    stickyTitle.textContent = title;
-    stickyAudio.currentTime = src.currentTime;
-    stickyAudio.play();
-    stickyBar.classList.add('visible');
+      stickyAudio.play().catch(()=>{});
 
-    // Keep times in sync while playing (card → sticky)
-    src._syncInterval = setInterval(() => {
-      if(!src.paused) stickyAudio.currentTime = src.currentTime;
-    }, 1000);
+      // Keep sticky in sync with card every second
+      clearInterval(_syncInterval);
+      _syncInterval = setInterval(() => {
+        if(_stickyActive && !_stickyActive.paused) {
+          stickyAudio.currentTime = _stickyActive.currentTime;
+        }
+      }, 1000);
+    });
 
-  }, true);
-
-  document.addEventListener('pause', function(e) {
-    if(e.target === stickyAudio) return;
-    if(e.target.tagName !== 'AUDIO') return;
-    clearInterval(e.target._syncInterval);
-    stickyAudio.pause();
-  }, true);
-
-  // Sticky player seeking → sync back to card
-  stickyAudio.addEventListener('seeked', function() {
-    if(activeSource) activeSource.currentTime = stickyAudio.currentTime;
+    // Pause on card → pause sticky
+    cardAudio.addEventListener('pause', function() {
+      clearInterval(_syncInterval);
+      if(!stickyAudio.paused) stickyAudio.pause();
+    });
   });
 
-  // Sticky play/pause → mirror to card
-  stickyAudio.addEventListener('play',  () => { if(activeSource && activeSource.paused) activeSource.play(); });
-  stickyAudio.addEventListener('pause', () => { if(activeSource && !activeSource.paused) activeSource.pause(); });
+  // Sticky seek → sync back to card
+  stickyAudio.addEventListener('seeked', function() {
+    if(_stickyActive) _stickyActive.currentTime = this.currentTime;
+  });
+
+  // Sticky play → mirror to card
+  stickyAudio.addEventListener('play', function() {
+    if(_stickyActive && _stickyActive.paused) _stickyActive.play().catch(()=>{});
+  });
+
+  // Sticky pause → mirror to card
+  stickyAudio.addEventListener('pause', function() {
+    if(_stickyActive && !_stickyActive.paused) _stickyActive.pause();
+  });
 }
 
 function closeSticky() {
   const stickyAudio = document.getElementById('sp-audio');
   stickyAudio.pause();
+  if(_stickyActive) _stickyActive.pause();
+  clearInterval(_syncInterval);
   document.getElementById('sticky-player').classList.remove('visible');
 }
 
-initStickyPlayer();
+// Defer until after the sticky div (which is after this script) is parsed
+window.addEventListener('DOMContentLoaded', initStickyPlayer);
 
 </script>
 

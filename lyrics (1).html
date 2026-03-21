@@ -90,7 +90,10 @@
   /* ── Media bar ── */
   .media-bar{padding:10px 24px;border-bottom:1px solid rgba(244,98,15,.08);background:linear-gradient(90deg,rgba(244,98,15,.04),rgba(232,24,90,.04));display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .media-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);flex-shrink:0}
-  .media-bar audio{height:32px;flex:1;min-width:180px;accent-color:var(--saffron)}
+  .card-play-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--saffron),var(--rose));border:none;border-radius:8px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;padding:7px 18px;cursor:pointer;box-shadow:0 2px 10px rgba(244,98,15,.3);transition:all .18s;letter-spacing:.3px}
+  .card-play-btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(244,98,15,.45)}
+  .card-play-btn.playing{background:linear-gradient(135deg,var(--teal),#0d7a76)}
+  .card-play-btn .btn-icon{font-size:14px}
   .yt-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid rgba(232,24,90,.3);color:var(--rose);font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;text-decoration:none;transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
   .yt-btn:hover{background:var(--rose);color:#fff;border-color:var(--rose)}
 
@@ -265,7 +268,7 @@ const SONGS = [
 
 {
   id:'song-1', title:'Dil Jalon Ka Dil Jala Ke', film:null,
-  media: { type:'mp3', src:'March 29 Show/1) Dil Jalon Ka Dil Jala Ke - Zanjeer.mp3.mpeg' }, 
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1uQehZRkWJCzDKJPy4XVhx67xpM_jeLTr' }, 
   lines:[
     'Dil jalon ka dil jala ke',
     'Kya milega dilruba',
@@ -311,7 +314,7 @@ const SONGS = [
 
 {
   id:'song-2', title:'Yaari Hai', film:'CLAPS',
-  media: { type:'mp3', src:'March 29 Show/2) Yari Hai Imaan Mera - Zanjeer.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1OL1nxXH7Yrba51-A2bm5hOT8UKAVITrK' },
   lines:[
     'Gar khuda mujhase kahe kuchh maang ai bande mere',
     'Main ye maangu mahafilon ke daur yun chalate rahen',
@@ -344,7 +347,7 @@ const SONGS = [
 
 {
   id:'song-3', title:'John Jani Jnardan', film:null,
-  media: { type:'mp3', src:'March 29 Show/3) John Jaani Janardhan - Naseeb.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1dSKdM0MQvwr7mmE6pR48hpHmsSik7HNi' },
   lines:[
     'john jani jnardan',
     'tara-ram-pam-pam-pam-pam',
@@ -406,7 +409,7 @@ const SONGS = [
 
 {
   id:'song-4', title:'Dil Ke Jharokhe', film:null,
-  media: { type:'mp3', src:'March 29 Show/8) Dil Ke Jharoke Mein - Brahmachari.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=17FpaEFpdvDf24B5WNYuOlMRsx5XVQahN' },
   lines:[
     '',
     '[NOTE: Hoo]',
@@ -472,7 +475,7 @@ const SONGS = [
 
 {
   id:'song-5', title:'Tiki Riki', film:null,
-  media: { type:'mp3', src:'March 29 Show/11) Tiki Riki Tiki Riki - Woh Kaun Thi.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=15tAsEzA7059J7D9fQffzB0ywc4Zyd6TG' },
   lines:[
     'Tiki riki tiki riki taakuri',
     'Tiki riki tiki riki tum',
@@ -564,7 +567,7 @@ const SONGS = [
 
 {
   id:'song-6', title:'Le Kar Hum', film:null,
-  media: { type:'mp3', src:'March 29 Show/13) Le Kar Hum Deewana Dil - Yaadon Ki Baaraat.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1i1phIBsvEC7SHkVgDBD6HQqR5Cwa6t8q' },
   lines:[
     '',
     'SHAKE SHAKE',
@@ -621,7 +624,7 @@ const SONGS = [
 
 {
   id:'song-7', title:'Yamma Yamma', film:null,
-  media: { type:'mp3', src:'March 29 Show/14) Yamma Yamma - Shaan.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1QxnnKRXLRjLqfz62v7N-itIcamjUEPV0' },
   lines:[
     'Yamma Yamma Yamma Yamma',
     'uhuuu...',
@@ -666,7 +669,7 @@ const SONGS = [
 
 {
   id:'song-8', title:'Rambha Ho Ho Ho', film:'FILM Armaan',
-  media: { type:'mp3', src:'March 29 Show/15) Ramba Ho Ho - Armaan.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=18swvznJdx7ChGMNXRjAMN6FNy2T9xwip' },
   lines:[
     'Rambha ho ho sambha ho ho (×2)',
     '',
@@ -735,7 +738,7 @@ const SONGS = [
 
 {
   id:'song-9', title:'Tuna Tuna Taa Taa Tuna', film:'FILM Adharm',
-  media: { type:'mp3', src:'March 29 Show/18) Tuna Tuna Taa Taa Tuna - Adharm.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1wLsFnD99wOJy8sbn2_zKE_MqD_5KcvxV' },
   lines:[
     '[CH]',
     'Tunna tunna ta ta tunna',
@@ -870,7 +873,7 @@ const SONGS = [
 
 {
   id:'song-10', title:'Daroo Ki Botal', film:'FILM Majboor',
-  media: { type:'mp3', src:'March 29 Show/21) Daroo Ki Botol Mein - Majboor.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1TMzEjfqmKgNbGXa0-mikBs4t1_V_FNIA' },
   lines:[
     'Hey hey hey hey hey,',
     'haan koi so saahiba lal lal lal lal laa',
@@ -944,7 +947,7 @@ const SONGS = [
 
 {
   id:'song-11', title:'Beedi Jalaile', film:null,
-  media: { type:'mp3', src:'March 29 Show/23) Beedi Jalaile - Omkara.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1W5jS0A4Ca6bvOCVcyFHzJ-WzuqgdQGlc' },
   lines:[
     'Naa gilaaf~~',
     'Naa lihaaf~~',
@@ -1022,7 +1025,7 @@ const SONGS = [
 
 {
   id:'song-12', title:'Do Ghoont Mujhe Bhi Pila De',
-  media: { type:'mp3', src:'March 29 Show/25) Do Ghoont Mujhe Bhi Pila De - Jheel Ke Us Paar.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=16Ek1CrWkI6zcKsE1ArMubyXvpD39Qc2R' },
   lines:[
     'Do Ghoont Mujhe Bhi Pila De Sharaabi',
     '[O alcoholic! Give me a couple of sips to drink]',
@@ -1089,7 +1092,7 @@ const SONGS = [
 
 {
   id:'song-13', title:'Khalnayak Hoon Main', film:'FILM Khalnayak',
-  media: { type:'mp3', src:'March 29 Show/27) Khalnayak Hoon Main - Kalnayak.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1c4ZpxZdDQ_2kc4SefQH3KiU6gAQeIKu9' },
   lines:[
     'Ji haan, main hoon khalnaayak',
     '',
@@ -1152,7 +1155,7 @@ const SONGS = [
 
 {
   id:'song-14', title:'Mehbooba Mehbooba', film:'FILM Ajnabee',
-  media: { type:'mp3', src:'March 29 Show/29) Mehbooba Mehbooba - Ajnabee.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1Qcnx-19zqlAh0nVCq3zsIt_wY6nazvAE' },
   lines:[
     'Oyla Oyla Oyla Oyla Oyla Oyla',
     'Oyla Oyla Oyla Dil Tera Ab Hoyla',
@@ -1212,7 +1215,7 @@ const SONGS = [
 
 {
   id:'song-15', title:'Khalibali Ho Gaya Hai Dil', film:'FILM Padmaavat',
-  media: { type:'mp3', src:'March 29 Show/31) Khalibali - Padmaavat.mp3.mpeg' },
+  media: { type:'mp3', src:'https://drive.google.com/uc?export=download&id=1sj4OOOPuzw-RwKBjeF2dUZFjr4NMqqN2' },
   lines:[
     'Habibi. habibi. habibi.',
     '',
@@ -1302,9 +1305,14 @@ function updateCount(){ document.getElementById('edited-count').textContent=Obje
 function buildMediaBar(song){
   if(!song.media) return '';
   if(song.media.type==='mp3')
-    return `<div class="media-bar"><span class="media-label">🎵 Play</span><audio controls src="${song.media.src}"></audio></div>`;
+    return `<div class="media-bar">
+      <button class="card-play-btn" id="playbtn-${song.id}"
+        onclick="cardPlayToggle('${song.id}','${song.media.src}',this)">
+        <span class="btn-icon">&#9654;</span> Play
+      </button>
+    </div>`;
   if(song.media.type==='youtube')
-    return `<div class="media-bar"><span class="media-label">▶ Watch</span><a class="yt-btn" href="${song.media.src}" target="_blank" rel="noopener">▶ Open on YouTube</a></div>`;
+    return `<div class="media-bar"><span class="media-label">&#9654; Watch</span><a class="yt-btn" href="${song.media.src}" target="_blank" rel="noopener">&#9654; Open on YouTube</a></div>`;
   return '';
 }
 
@@ -1524,91 +1532,95 @@ function initScrollSpy(){
 
 buildPage();
 
-/* ── Sticky bottom player ── */
-// ARCHITECTURE: card audio is always MUTED — it acts only as a trigger.
-// All actual sound comes exclusively from the sticky player.
-// This prevents the double-audio distortion/echo.
+/* ── Single-audio architecture ──
+   ONLY the sticky player at the bottom has an <audio> element.
+   Card buttons are just triggers — no audio elements in cards at all.
+   This eliminates double-playback distortion AND the tab-pause bug.
+*/
 
-let _stickyActive = null;
-let _syncInterval = null;
+let _activeSongId  = null;   // id of currently loaded song
+let _activeSrc     = null;   // src of currently loaded song
 
-function initStickyPlayer() {
+function cardPlayToggle(songId, src, btn) {
   const stickyBar   = document.getElementById('sticky-player');
   const stickyAudio = document.getElementById('sp-audio');
   const stickyTitle = document.getElementById('sp-title');
-  if(!stickyBar || !stickyAudio) return;
 
-  document.querySelectorAll('.media-bar audio').forEach(function(cardAudio) {
-
-    // Mute card audio immediately — sticky is the only sound source
-    cardAudio.volume = 0;
-
-    cardAudio.addEventListener('play', function() {
-      const card    = this.closest('.song-card');
-      const titleEl = card ? card.querySelector('.song-title-block h2') : null;
-      const title   = titleEl ? titleEl.textContent : 'Now Playing';
-
-      // If different track was active, reset it
-      if(_stickyActive && _stickyActive !== this) {
-        clearInterval(_syncInterval);
-        _stickyActive.pause();
-      }
-      _stickyActive = this;
-
-      // Load into sticky if src changed
-      const newSrc = this.currentSrc || this.src;
-      if(stickyAudio.getAttribute('data-src') !== newSrc) {
-        stickyAudio.src = newSrc;
-        stickyAudio.setAttribute('data-src', newSrc);
-        stickyAudio.load();
-      }
-
-      stickyTitle.textContent = title;
-      stickyAudio.currentTime = this.currentTime;
-      stickyBar.classList.add('visible');
+  // If same song button pressed again → toggle play/pause
+  if(_activeSongId === songId) {
+    if(stickyAudio.paused) {
       stickyAudio.play().catch(()=>{});
+      setAllBtns('paused');
+      btn.innerHTML = '<span class="btn-icon">&#9646;&#9646;</span> Pause';
+      btn.classList.add('playing');
+    } else {
+      stickyAudio.pause();
+      btn.innerHTML = '<span class="btn-icon">&#9654;</span> Play';
+      btn.classList.remove('playing');
+    }
+    return;
+  }
 
-      // Sync position card → sticky every second
-      clearInterval(_syncInterval);
-      _syncInterval = setInterval(function() {
-        if(_stickyActive && !_stickyActive.paused) {
-          stickyAudio.currentTime = _stickyActive.currentTime;
-        }
-      }, 1000);
-    });
+  // Different song — reset any previous button
+  resetAllBtns();
 
-    cardAudio.addEventListener('pause', function() {
-      clearInterval(_syncInterval);
-      if(!stickyAudio.paused) stickyAudio.pause();
-    });
+  // Load new song into sticky
+  _activeSongId = songId;
+  _activeSrc    = src;
+  const card    = document.getElementById(songId);
+  const titleEl = card ? card.querySelector('.song-title-block h2') : null;
+  stickyTitle.textContent = titleEl ? titleEl.textContent : 'Now Playing';
+
+  stickyAudio.src = src;
+  stickyAudio.load();
+  stickyAudio.play().catch(()=>{});
+
+  btn.innerHTML = '<span class="btn-icon">&#9646;&#9646;</span> Pause';
+  btn.classList.add('playing');
+  stickyBar.classList.add('visible');
+}
+
+function resetAllBtns() {
+  document.querySelectorAll('.card-play-btn').forEach(function(b) {
+    b.innerHTML = '<span class="btn-icon">&#9654;</span> Play';
+    b.classList.remove('playing');
   });
+}
 
-  // Sticky seek → keep card in sync (for accurate resume)
-  stickyAudio.addEventListener('seeked', function() {
-    if(_stickyActive) _stickyActive.currentTime = this.currentTime;
-  });
-
-  // Sticky play button → also resume card (keeps positions aligned)
-  stickyAudio.addEventListener('play', function() {
-    if(_stickyActive && _stickyActive.paused) _stickyActive.play().catch(()=>{});
-  });
-
-  // Sticky pause button → also pause card
-  stickyAudio.addEventListener('pause', function() {
-    if(_stickyActive && !_stickyActive.paused) _stickyActive.pause();
-  });
+function setAllBtns(state) {
+  // used when sticky is paused/played from sticky bar itself
 }
 
 function closeSticky() {
   const stickyAudio = document.getElementById('sp-audio');
   stickyAudio.pause();
-  if(_stickyActive) { _stickyActive.pause(); }
-  clearInterval(_syncInterval);
+  resetAllBtns();
+  _activeSongId = null;
   document.getElementById('sticky-player').classList.remove('visible');
 }
 
-// Wait for full DOM (sticky div is after this script tag)
-window.addEventListener('DOMContentLoaded', initStickyPlayer);
+// Sticky play/pause buttons → sync card button label
+window.addEventListener('DOMContentLoaded', function() {
+  const stickyAudio = document.getElementById('sp-audio');
+  if(!stickyAudio) return;
+
+  stickyAudio.addEventListener('play', function() {
+    if(!_activeSongId) return;
+    const btn = document.getElementById('playbtn-' + _activeSongId);
+    if(btn) { btn.innerHTML = '<span class="btn-icon">&#9646;&#9646;</span> Pause'; btn.classList.add('playing'); }
+  });
+
+  stickyAudio.addEventListener('pause', function() {
+    if(!_activeSongId) return;
+    const btn = document.getElementById('playbtn-' + _activeSongId);
+    if(btn) { btn.innerHTML = '<span class="btn-icon">&#9654;</span> Play'; btn.classList.remove('playing'); }
+  });
+
+  stickyAudio.addEventListener('ended', function() {
+    resetAllBtns();
+    _activeSongId = null;
+  });
+});
 
 </script>
 

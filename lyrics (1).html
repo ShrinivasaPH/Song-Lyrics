@@ -1524,10 +1524,10 @@ function initScrollSpy(){
 
 buildPage();
 
-/* ── Sticky bottom player sync ── */
-// audio play/pause events do NOT bubble, so we attach directly to each
-// card audio element after buildPage() creates them.
-// We also defer until after the sticky HTML div is in the DOM.
+/* ── Sticky bottom player ── */
+// ARCHITECTURE: card audio is always MUTED — it acts only as a trigger.
+// All actual sound comes exclusively from the sticky player.
+// This prevents the double-audio distortion/echo.
 
 let _stickyActive = null;
 let _syncInterval = null;
@@ -1536,63 +1536,64 @@ function initStickyPlayer() {
   const stickyBar   = document.getElementById('sticky-player');
   const stickyAudio = document.getElementById('sp-audio');
   const stickyTitle = document.getElementById('sp-title');
-  if(!stickyBar || !stickyAudio){ return; }
+  if(!stickyBar || !stickyAudio) return;
 
-  // Attach to every card audio element
-  document.querySelectorAll('.media-bar audio').forEach(cardAudio => {
-    // Play on card → mirror to sticky
+  document.querySelectorAll('.media-bar audio').forEach(function(cardAudio) {
+
+    // Mute card audio immediately — sticky is the only sound source
+    cardAudio.volume = 0;
+
     cardAudio.addEventListener('play', function() {
       const card    = this.closest('.song-card');
       const titleEl = card ? card.querySelector('.song-title-block h2') : null;
       const title   = titleEl ? titleEl.textContent : 'Now Playing';
 
-      // Pause previous if different track
+      // If different track was active, reset it
       if(_stickyActive && _stickyActive !== this) {
-        _stickyActive.pause();
         clearInterval(_syncInterval);
+        _stickyActive.pause();
       }
       _stickyActive = this;
 
-      // Load new src into sticky if needed
+      // Load into sticky if src changed
       const newSrc = this.currentSrc || this.src;
       if(stickyAudio.getAttribute('data-src') !== newSrc) {
         stickyAudio.src = newSrc;
         stickyAudio.setAttribute('data-src', newSrc);
         stickyAudio.load();
       }
+
       stickyTitle.textContent = title;
       stickyAudio.currentTime = this.currentTime;
       stickyBar.classList.add('visible');
-
       stickyAudio.play().catch(()=>{});
 
-      // Keep sticky in sync with card every second
+      // Sync position card → sticky every second
       clearInterval(_syncInterval);
-      _syncInterval = setInterval(() => {
+      _syncInterval = setInterval(function() {
         if(_stickyActive && !_stickyActive.paused) {
           stickyAudio.currentTime = _stickyActive.currentTime;
         }
       }, 1000);
     });
 
-    // Pause on card → pause sticky
     cardAudio.addEventListener('pause', function() {
       clearInterval(_syncInterval);
       if(!stickyAudio.paused) stickyAudio.pause();
     });
   });
 
-  // Sticky seek → sync back to card
+  // Sticky seek → keep card in sync (for accurate resume)
   stickyAudio.addEventListener('seeked', function() {
     if(_stickyActive) _stickyActive.currentTime = this.currentTime;
   });
 
-  // Sticky play → mirror to card
+  // Sticky play button → also resume card (keeps positions aligned)
   stickyAudio.addEventListener('play', function() {
     if(_stickyActive && _stickyActive.paused) _stickyActive.play().catch(()=>{});
   });
 
-  // Sticky pause → mirror to card
+  // Sticky pause button → also pause card
   stickyAudio.addEventListener('pause', function() {
     if(_stickyActive && !_stickyActive.paused) _stickyActive.pause();
   });
@@ -1601,12 +1602,12 @@ function initStickyPlayer() {
 function closeSticky() {
   const stickyAudio = document.getElementById('sp-audio');
   stickyAudio.pause();
-  if(_stickyActive) _stickyActive.pause();
+  if(_stickyActive) { _stickyActive.pause(); }
   clearInterval(_syncInterval);
   document.getElementById('sticky-player').classList.remove('visible');
 }
 
-// Defer until after the sticky div (which is after this script) is parsed
+// Wait for full DOM (sticky div is after this script tag)
 window.addEventListener('DOMContentLoaded', initStickyPlayer);
 
 </script>

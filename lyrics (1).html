@@ -1304,9 +1304,13 @@ function updateCount(){ document.getElementById('edited-count').textContent=Obje
 function buildMediaBar(song){
   if(!song.media) return '';
   if(song.media.type==='mp3')
+    // Use data-attributes so the URL is never mangled by HTML encoding of '&'
     return '<div class="media-bar">'
-      + '<button class="card-play-btn" id="playbtn-' + song.id + '"'
-      + ' onclick="cardPlayToggle(\'' + song.id + '\',\'' + song.media.src + '\',this)">'
+      + '<button class="card-play-btn"'
+      + ' id="playbtn-' + song.id + '"'
+      + ' data-songid="' + song.id + '"'
+      + ' data-src="' + song.media.src + '"'
+      + ' onclick="cardPlayToggle(this)">'
       + '&#9654; Play</button></div>';
   if(song.media.type==='youtube')
     return '<div class="media-bar"><a class="yt-btn" href="' + song.media.src + '" target="_blank" rel="noopener">&#9654; Open on YouTube</a></div>';
@@ -1536,15 +1540,18 @@ buildPage();
 */
 var _activeSongId = null;
 
-function cardPlayToggle(songId, src, btn) {
+function cardPlayToggle(btn) {
+  var songId = btn.getAttribute('data-songid');
+  var src    = btn.getAttribute('data-src');  // safe: read from DOM attribute, no encoding issues
+
   var stickyBar   = document.getElementById('sticky-player');
   var stickyAudio = document.getElementById('sp-audio');
   var stickyTitle = document.getElementById('sp-title');
 
-  // Same button pressed again → toggle play/pause
+  // Same song → toggle play/pause
   if (_activeSongId === songId) {
     if (stickyAudio.paused) {
-      stickyAudio.play();
+      stickyAudio.play().catch(function(e){ console.warn('play() failed:', e); });
       btn.innerHTML = '&#9646;&#9646; Pause';
       btn.classList.add('playing');
     } else {
@@ -1555,19 +1562,22 @@ function cardPlayToggle(songId, src, btn) {
     return;
   }
 
-  // New song — reset previous button
+  // New song — reset any active button first
   resetAllPlayBtns();
   _activeSongId = songId;
 
-  // Set title
+  // Update title in sticky bar
   var card    = document.getElementById(songId);
   var titleEl = card ? card.querySelector('.song-title-block h2') : null;
   stickyTitle.textContent = titleEl ? titleEl.textContent : 'Now Playing';
 
-  // Load and play
+  // Set src — play once enough data is available (avoids load/play race)
   stickyAudio.src = src;
+  stickyAudio.addEventListener('canplay', function handler() {
+    stickyAudio.removeEventListener('canplay', handler);
+    stickyAudio.play().catch(function(e){ console.warn('play() failed:', e); });
+  });
   stickyAudio.load();
-  stickyAudio.play();
 
   btn.innerHTML = '&#9646;&#9646; Pause';
   btn.classList.add('playing');

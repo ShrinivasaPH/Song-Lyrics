@@ -443,7 +443,6 @@ const SONGS = [
     'hun yaaro ka mai yaar',
     'dushmano ka dushman de dana-dan',
     '',
-    '{01:15}',
     'TU RU RU RU RUUU RUU',
     'GA MA GA RI MAAA GAA',
     '',
@@ -2209,37 +2208,7 @@ function ts(stamp) {
   return parseInt(parts[0]) * 60 + parseInt(parts[1]);
 }
 
-function downloadEdits() {
-  var edits = loadEdits();
-
-  // Nothing saved yet
-  if (Object.keys(edits).length === 0) {
-    alert('No edits saved yet. Edit a song first, then download.');
-    return;
-  }
-
-  // Build a clean export object with song title + saved HTML
-  var exportData = {};
-  SONGS.forEach(function(song) {
-    if (edits[song.id]) {
-      exportData[song.id] = {
-        title:   song.title,
-        editedHtml: edits[song.id]
-      };
-    }
-  });
-
-  var blob = new Blob(
-    [JSON.stringify(exportData, null, 2)],
-    { type: 'application/json' }
-  );
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'my-lyrics-edits.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+/* old JSON download removed */
 
 /* ── Scroll to top visibility ── */
 window.addEventListener('scroll', function() {
@@ -2280,23 +2249,28 @@ function downloadEdits() {
     + 'March 29 — Song Lyrics</h1>'
     + '<p style="font-size:12px;color:#9b6f4a;margin:0 0 32px">My edited lyrics copy</p>';
 
-  // One section per edited song
+  // All songs — use edited version if available, else original
   SONGS.forEach(function(song) {
-    if (!edits[song.id]) return;
-
     var section = document.createElement('div');
     section.style.cssText = 'margin-bottom:40px;page-break-inside:avoid';
 
     // Song title
+    var editedBadge = edits[song.id]
+      ? '<span style="font-size:10px;background:rgba(255,255,255,0.3);'
+        + 'border-radius:10px;padding:1px 8px;margin-left:8px">✎ edited</span>'
+      : '';
     var titleBar = '<div style="background:linear-gradient(90deg,#f4620f,#e8185a);'
       + 'color:#fff;padding:8px 16px;border-radius:8px;margin-bottom:14px">'
       + '<span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.8">'
       + (song.film ? song.film + ' — ' : '') + '</span><br>'
-      + '<span style="font-size:18px;font-weight:700">' + song.title + '</span>'
+      + '<span style="font-size:18px;font-weight:700">' + song.title + editedBadge + '</span>'
       + '</div>';
 
+    // Use edited HTML if saved, otherwise render from original lines
+    var sourceLyrics = edits[song.id] ? edits[song.id] : linesToHtml(song.lines, song.id);
+
     // Lyrics — strip timestamp buttons and format toolbar artifacts
-    var lyricsHtml = edits[song.id]
+    var lyricsHtml = sourceLyrics
       .replace(/<button[^>]*class="time-cue"[^>]*>.*?<\/button>/g, '')
       .replace(/<hr[^>]*>/g, '<div style="border-top:1px solid #e5c9a0;margin:10px 0"></div>')
       .replace(/<span class="note">/g, '<span style="background:#fef9c3;border:1px solid #f7c31e;'

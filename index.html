@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>🎵 Song Lyrics — March 29</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
   :root {
     --saffron:#f4620f; --saffron-l:#ff8c3a; --rose:#e8185a;
@@ -243,6 +247,30 @@
 }
 #scroll-top.visible { display: flex; }
 #scroll-top:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(244,98,15,0.45); }
+
+/* ── PDF export overlay ── */
+#pdf-overlay {
+  position: fixed; inset: 0; background: rgba(30,13,0,0.6);
+  z-index: 9999; display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#pdf-overlay.visible { display: flex; }
+#pdf-overlay .pdf-box {
+  background: #fff; border-radius: 16px; padding: 32px 40px;
+  text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+#pdf-overlay .pdf-box .pdf-spinner {
+  font-size: 36px; display: block; margin-bottom: 12px;
+  animation: spin 1.2s linear infinite;
+}
+#pdf-overlay .pdf-box p {
+  font-size: 14px; font-weight: 600; color: var(--ink2); margin: 0;
+}
+#pdf-overlay .pdf-box small {
+  font-size: 12px; color: var(--muted); margin-top: 6px; display: block;
+}
+
 
 </style>
 </head>
@@ -2219,6 +2247,128 @@ window.addEventListener('scroll', function() {
   else btn.classList.remove('visible');
 });
 
+function downloadEdits() {
+  var edits = loadEdits();
+
+  if (Object.keys(edits).length === 0) {
+    alert('No edits saved yet. Edit a song first, then download.');
+    return;
+  }
+
+  // Show loading overlay
+  document.getElementById('pdf-overlay').classList.add('visible');
+
+  // Build a hidden, clean print-ready div with all edited songs
+  var printDiv = document.createElement('div');
+  printDiv.style.cssText = [
+    'position:fixed', 'top:0', 'left:0',
+    'width:794px',          // A4 width in px at 96dpi
+    'background:#fff',
+    'padding:40px 48px',
+    'font-family:Georgia,serif',
+    'font-size:14px',
+    'line-height:1.9',
+    'color:#1e0d00',
+    'z-index:-1',
+    'pointer-events:none',
+  ].join(';');
+
+  // Header
+  printDiv.innerHTML = '<h1 style="font-family:Georgia,serif;font-size:26px;font-weight:900;'
+    + 'color:#f4620f;margin:0 0 6px;border-bottom:2px solid #f4620f;padding-bottom:10px">'
+    + 'March 29 — Song Lyrics</h1>'
+    + '<p style="font-size:12px;color:#9b6f4a;margin:0 0 32px">My edited lyrics copy</p>';
+
+  // One section per edited song
+  SONGS.forEach(function(song) {
+    if (!edits[song.id]) return;
+
+    var section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:40px;page-break-inside:avoid';
+
+    // Song title
+    var titleBar = '<div style="background:linear-gradient(90deg,#f4620f,#e8185a);'
+      + 'color:#fff;padding:8px 16px;border-radius:8px;margin-bottom:14px">'
+      + '<span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.8">'
+      + (song.film ? song.film + ' — ' : '') + '</span><br>'
+      + '<span style="font-size:18px;font-weight:700">' + song.title + '</span>'
+      + '</div>';
+
+    // Lyrics — strip timestamp buttons and format toolbar artifacts
+    var lyricsHtml = edits[song.id]
+      .replace(/<button[^>]*class="time-cue"[^>]*>.*?<\/button>/g, '')
+      .replace(/<hr[^>]*>/g, '<div style="border-top:1px solid #e5c9a0;margin:10px 0"></div>')
+      .replace(/<span class="note">/g, '<span style="background:#fef9c3;border:1px solid #f7c31e;'
+        + 'border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;color:#8a6000">')
+      .replace(/<span class="marker">/g, '<span style="font-size:11px;font-weight:800;'
+        + 'letter-spacing:2px;text-transform:uppercase;color:#e8185a">')
+      .replace(/<span class="translation">/g, '<span style="font-size:12px;color:#0ea5a0;font-style:italic">')
+      .replace(/<span class="lyric-line">/g, '<span style="display:block;min-height:1.2em">')
+      .replace(/<span class="lyric-blank">/g, '<span style="display:block;height:.6em">');
+
+    section.innerHTML = titleBar
+      + '<div style="padding:0 4px">' + lyricsHtml + '</div>';
+    printDiv.appendChild(section);
+  });
+
+  document.body.appendChild(printDiv);
+
+  // Give browser a moment to render, then capture
+  setTimeout(function() {
+    var { jsPDF } = window.jspdf;
+    var pdf = new jsPDF('p', 'mm', 'a4');
+    var pageW  = pdf.internal.pageSize.getWidth();
+    var pageH  = pdf.internal.pageSize.getHeight();
+    var margin = 10;
+
+    html2canvas(printDiv, {
+      scale: 2,             // retina quality
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: printDiv.offsetWidth,
+      windowWidth: printDiv.offsetWidth
+    }).then(function(canvas) {
+      var imgData   = canvas.toDataURL('image/jpeg', 0.92);
+      var imgW      = pageW - margin * 2;
+      var imgH      = (canvas.height * imgW) / canvas.width;
+      var y         = margin;
+      var remaining = imgH;
+
+      // Paginate — slice image across A4 pages
+      while (remaining > 0) {
+        var sliceH = Math.min(remaining, pageH - margin * 2);
+        var srcY   = (imgH - remaining) * (canvas.height / imgH);
+        var srcH   = sliceH * (canvas.height / imgH);
+
+        var sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width  = canvas.width;
+        sliceCanvas.height = srcH;
+        var sctx = sliceCanvas.getContext('2d');
+        sctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+        var sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+        if (y > margin) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', margin, margin, imgW, sliceH);
+
+        remaining -= sliceH;
+        y += sliceH;
+      }
+
+      pdf.save('my-lyrics-edits.pdf');
+
+      // Cleanup
+      document.body.removeChild(printDiv);
+      document.getElementById('pdf-overlay').classList.remove('visible');
+
+    }).catch(function(err) {
+      console.error('PDF error:', err);
+      document.body.removeChild(printDiv);
+      document.getElementById('pdf-overlay').classList.remove('visible');
+      alert('PDF generation failed. Try with fewer songs edited at once.');
+    });
+  }, 300);
+}
+
 </script>
 
 <!-- Sticky bottom player -->
@@ -2234,6 +2384,15 @@ window.addEventListener('scroll', function() {
 </div>
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<!-- PDF generation overlay -->
+<div id="pdf-overlay">
+  <div class="pdf-box">
+    <span class="pdf-spinner">⚙️</span>
+    <p>Generating your PDF…</p>
+    <small>This may take a few seconds</small>
+  </div>
+</div>
 
 </body>
 </html>

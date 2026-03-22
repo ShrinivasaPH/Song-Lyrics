@@ -1635,7 +1635,7 @@ const SONGS = [
 ════════════════════════════════════════════════════ */
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function linesToHtml(lines){
+function linesToHtml(lines, songId){
   return lines.map(line => {
     const t = line.trim();
     if(t === '') return '<span class="lyric-blank"></span>';
@@ -1652,7 +1652,7 @@ function linesToHtml(lines){
       /\{(\d+:\d{2})\}/g,
       function(match, stamp) {
         var secs = parseInt(stamp.split(':')[0]) * 60 + parseInt(stamp.split(':')[1]);
-        return '<button class="time-cue" onclick="playFromTime(' + secs + ')">' + stamp + '</button>';
+        return '<button class="time-cue" onclick="playFromTime(' + secs + ',\'' + songId + '\')">' + stamp + '</button>';
       }
     );
     return '<span class="lyric-line">' + rendered + '</span>';
@@ -1763,7 +1763,7 @@ function buildPage(){
 
   SONGS.forEach((song, i) => {
     const isEdited = !!edits[song.id];
-    const displayHTML  = isEdited ? edits[song.id] : linesToHtml(song.lines);
+    const displayHTML  = isEdited ? edits[song.id] : linesToHtml(song.lines, song.id);
     const editHTML     = isEdited ? edits[song.id] : linesToEditHtml(song.lines);
 
     // Sidebar nav item
@@ -1866,7 +1866,7 @@ function cancelEdit(id){
 function resetSong(id){
   if(!confirm('Reset to original lyrics? All edits and formatting will be lost.')) return;
   const song  = SONGS.find(s => s.id === id);
-  const fresh = linesToHtml(song.lines);
+  const fresh = linesToHtml(song.lines, song.id);
   const edit  = linesToEditHtml(song.lines);
   document.getElementById('lyrics-'+id).innerHTML = fresh;
   document.getElementById('edit-'+id).innerHTML   = edit;
@@ -2007,22 +2007,32 @@ function skipTime(seconds) {
   audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + seconds));
 }
 
-function playFromTime(seconds) {
-  var audio = document.getElementById('sp-audio');
+function playFromTime(seconds, songId) {
+  var audio     = document.getElementById('sp-audio');
   var stickyBar = document.getElementById('sticky-player');
   if (!audio) return;
 
-  // If no song is loaded yet, do nothing — user must press Play first
-  if (!_activeSongId) {
-    alert('Press Play on the song first, then use the timestamp button.');
-    return;
+  function seekAndPlay() {
+    audio.currentTime = seconds;
+    if (audio.paused) audio.play().catch(function(){});
+    stickyBar.classList.add('visible');
   }
 
-  audio.currentTime = seconds;
-  if (audio.paused) audio.play().catch(function(){});
-
-  // Scroll sticky bar into view
-  stickyBar.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  if (_activeSongId === songId) {
+    // Same song already loaded — just seek
+    seekAndPlay();
+  } else {
+    // Different or no song — trigger that song's play button first
+    var btn = document.getElementById('playbtn-' + songId);
+    if (btn) {
+      cardPlayToggle(btn);
+      // Wait for canplay before seeking to the timestamp
+      audio.addEventListener('canplay', function handler() {
+        audio.removeEventListener('canplay', handler);
+        seekAndPlay();
+      });
+    }
+  }
 }
 
 // Helper: convert "m:ss" string → total seconds

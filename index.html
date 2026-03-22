@@ -25,7 +25,7 @@
   #sparkle-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5}
 
   /* ── Sidebar ── */
-  .sidebar{width:var(--sidebar-w);height:100vh; overflow-y:auto;background:linear-gradient(175deg,#fff8ee,#fff2e0);border-right:2px solid var(--border);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto;box-shadow:4px 0 24px rgba(244,98,15,.07)}
+  .sidebar{width:var(--sidebar-w);height:100vh;overflow-y:auto;background:linear-gradient(175deg,#fff8ee,#fff2e0);border-right:2px solid var(--border);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 24px rgba(244,98,15,.07)}
   .sidebar-header{padding:28px 24px 22px;background:linear-gradient(135deg,var(--saffron),var(--rose));position:relative;overflow:hidden}
   .sidebar-header::before{content:'✦';position:absolute;right:16px;top:12px;font-size:42px;color:rgba(255,255,255,.18);animation:spin 8s linear infinite}
   .sidebar-header::after{content:'✦';position:absolute;left:8px;bottom:8px;font-size:22px;color:rgba(255,255,255,.13);animation:spin 14s linear infinite reverse}
@@ -977,7 +977,7 @@ const SONGS = [
     "**🎸🎸🎸**",
     "mangta hai to aaja rasiya",
     "naahi to mai ye challi",
-    "CH: Heyyyyyyyy",
+    "CH: Heyyyyyyyy.. Hoooo",
     '',
     "mangta hai to aaja rasiya",
     "naahi to mai ye challi",
@@ -1634,7 +1634,11 @@ const SONGS = [
     'Hai pyaar kya mujhko kya khabar',
     'Bas yaar nafarat ke laayak hoon main',
     '',
-    'Naayak nahi... khalnaayak hoon main',
+    '{1:40}',
+    'Naayak nahi...',
+    '[Ch: (Ta Ra Ra Riii)]',
+    'khalnaayak hoon main',
+    '[Ch: (Ta Ra Ra Rooo)]',
     '',
     '---',
     '',
@@ -1837,11 +1841,51 @@ function linesToEditHtml(lines){
 /* ════════════════════════════════════════════════════
    LOCAL STORAGE  (stores rich HTML per song)
 ════════════════════════════════════════════════════ */
-const LS_KEY = 'lyrics_v3_march29';
+const LS_KEY      = 'lyrics_v3_march29';
+const LS_HASH_KEY = 'lyrics_v3_march29_hashes'; // tracks lines[] hash per song
+
+// Simple hash of lines array — if lines[] changes in code, hash changes → localStorage cleared
+function hashLines(lines){
+  var str = lines.join('|');
+  var h = 0;
+  for(var i = 0; i < str.length; i++){
+    h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  }
+  return h.toString(36);
+}
+
 function loadEdits(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||{}; }catch{ return {}; } }
-function saveEdit(id,html){ const e=loadEdits(); e[id]=html; localStorage.setItem(LS_KEY,JSON.stringify(e)); updateCount(); }
-function removeEdit(id){ const e=loadEdits(); delete e[id]; localStorage.setItem(LS_KEY,JSON.stringify(e)); updateCount(); }
+function loadHashes(){ try{ return JSON.parse(localStorage.getItem(LS_HASH_KEY))||{}; }catch{ return {}; } }
+
+function saveEdit(id, html, linesHash){
+  const e = loadEdits();   e[id] = html; localStorage.setItem(LS_KEY, JSON.stringify(e));
+  const h = loadHashes();  h[id] = linesHash; localStorage.setItem(LS_HASH_KEY, JSON.stringify(h));
+  updateCount();
+}
+function removeEdit(id){
+  const e = loadEdits();  delete e[id]; localStorage.setItem(LS_KEY, JSON.stringify(e));
+  const h = loadHashes(); delete h[id]; localStorage.setItem(LS_HASH_KEY, JSON.stringify(h));
+  updateCount();
+}
 function updateCount(){ document.getElementById('edited-count').textContent=Object.keys(loadEdits()).length; }
+
+// Call once on startup: if a song's lines[] changed since last save, clear its stale localStorage
+function invalidateStaleEdits(){
+  const edits   = loadEdits();
+  const hashes  = loadHashes();
+  let cleared   = 0;
+  SONGS.forEach(function(song){
+    if(!edits[song.id]) return;             // no saved edit — nothing to check
+    const currentHash = hashLines(song.lines);
+    if(hashes[song.id] && hashes[song.id] !== currentHash){
+      // lines[] changed in code → discard stale localStorage for this song
+      removeEdit(song.id);
+      cleared++;
+      console.log('Cleared stale edit for:', song.title);
+    }
+  });
+  if(cleared > 0) console.log(cleared + ' stale edit(s) cleared — code was updated.');
+}
 
 /* ════════════════════════════════════════════════════
    MEDIA BAR
@@ -1910,10 +1954,16 @@ function buildToolbar(id){
 }
 
 let activeEditId = null;
-function fmt(cmd){ document.execCommand(cmd,false,null); autoSave(); }
-function fmtSize(v){ if(v) document.execCommand('fontSize',false,v); autoSave(); }
-function fmtColor(c){ document.execCommand('foreColor',false,c); autoSave(); }
-function fmtBg(c){ document.execCommand('hiliteColor',false,c); autoSave(); }
+function fmt(cmd){
+  // execCommand is deprecated but remains the only cross-browser
+  // way to apply rich formatting inside contenteditable.
+  // eslint-disable-next-line no-restricted-globals
+  document.execCommand(cmd, false, null);
+  autoSave();
+}
+function fmtSize(v){ if(v){ document.execCommand('fontSize', false, v); autoSave(); } }
+function fmtColor(c){ document.execCommand('foreColor', false, c); autoSave(); }
+function fmtBg(c){ document.execCommand('hiliteColor', false, c); autoSave(); }
 function autoSave(){
   if(!activeEditId) return;
   const area = document.getElementById('edit-'+activeEditId);
@@ -2008,7 +2058,7 @@ function triggerSave(id){
     removeEdit(id);
     document.getElementById('badge-'+id).classList.remove('visible');
   } else {
-    saveEdit(id, html);
+    saveEdit(id, html, hashLines(song.lines));  // store hash alongside edit
     document.getElementById('badge-'+id).classList.add('visible');
   }
 }
@@ -2076,6 +2126,7 @@ function initScrollSpy(){
   document.querySelectorAll('.song-card').forEach(c => obs.observe(c));
 }
 
+invalidateStaleEdits(); // clear any localStorage entries whose lines[] changed
 buildPage();
 
 /* ── Single-audio player ──

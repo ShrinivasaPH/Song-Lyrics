@@ -217,6 +217,19 @@
 }
 .time-cue::before { content: '▶ '; font-size: 9px; }
 
+/* ── Download button ── */
+.btn-download {
+  background: #fff; border: 1.5px solid rgba(14,165,160,0.35);
+  color: var(--teal); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px; font-weight: 700; border-radius: 8px;
+  padding: 7px 14px; cursor: pointer; transition: all .18s;
+  white-space: nowrap;
+}
+.btn-download:hover {
+  background: var(--teal); color: #fff;
+  border-color: var(--teal); box-shadow: 0 2px 12px rgba(14,165,160,0.3);
+}
+
 </style>
 </head>
 <body>
@@ -248,6 +261,9 @@
     <div class="meta">
       <div class="meta-pill"><span class="v">15</span><span class="k">Songs</span></div>
       <div class="meta-pill"><span class="v" id="edited-count">0</span><span class="k">Edited</span></div>
+      <button class="btn-download" onclick="downloadEdits()" style="margin-top:16px">
+        ⬇ Download My Edits
+      </button>
     </div>
   </div>
   <div class="songs-container" id="songs-container"></div>
@@ -1505,7 +1521,7 @@ const SONGS = [
     '',
     'Aag Paani Mein Laga De Zara Si',
     '[Set the water on fire]',
-    'Dekh Phir Hota Hai Kya',
+    'Dekh Phir Hota Hai Kya || Do Ghoont ||',
     '',
     '---',
     '',
@@ -1517,6 +1533,7 @@ const SONGS = [
     'Arre Arre Arre Arre',
 
     "[I feel embarrassed, but I've chose to die with shame]",
+    '',
     '',
     'Naach Gaaye Ghoongat Uthaade Sharaabi',
     '[Dance, sing and lift my veil, O alcoholic!]',
@@ -1563,6 +1580,7 @@ const SONGS = [
   media: { type:'mp3', src:'March 29 Show/27) Khalnayak Hoon Main - Kalnayak.mp3.mpeg' },
   lines:[
     'Ji haan, main hoon khalnaayak',
+    '[Ch: Heyyyyyy]',
     '',
     'Naayak nahi... khalanaayak hai tu',
     'Zulmi bada duhk daayak hai tu',
@@ -1602,14 +1620,22 @@ const SONGS = [
     'Afsos phir bhi akela hai tu',
     '',
     'Bachapan ne likhi kahaani meri',
-    'Kaise badalati javaani meri',
+    'Kaise badalti javaani meri',
     'Saara samandar mere paas hai',
     'Ek boond paani meri pyaas hai',
+    '',
+    '[S... D1.. P..]',
+    '[M Ch: Hmm Hmm Hmm]',
+    '[S... D1.. P..]',
+    '[M Ch: Hmm Hmm Hmm]',
     '',
     'Dekha tha maa ne kabhi pyaar se',
     'Ab mil gai wo bhi sansaar se',
     'Main wo lutera hoon jo loot gaya',
     'Maa ka bhi anchal kahin chhut gaya',
+    '',
+    '[D1 R2 S.. D1 R2 S.. ]',
+    '[F Ch: Aaa Aaa Aaa .. Aaa Aaa Aaa]',
     '',
     'Naayak nahi... khalanaayak hoon main',
     'Zulmi bada duhkhadayak hoon main',
@@ -2140,6 +2166,37 @@ function ts(stamp) {
   return parseInt(parts[0]) * 60 + parseInt(parts[1]);
 }
 
+function downloadEdits() {
+  var edits = loadEdits();
+
+  // Nothing saved yet
+  if (Object.keys(edits).length === 0) {
+    alert('No edits saved yet. Edit a song first, then download.');
+    return;
+  }
+
+  // Build a clean export object with song title + saved HTML
+  var exportData = {};
+  SONGS.forEach(function(song) {
+    if (edits[song.id]) {
+      exportData[song.id] = {
+        title:   song.title,
+        editedHtml: edits[song.id]
+      };
+    }
+  });
+
+  var blob = new Blob(
+    [JSON.stringify(exportData, null, 2)],
+    { type: 'application/json' }
+  );
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'my-lyrics-edits.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 </script>
 

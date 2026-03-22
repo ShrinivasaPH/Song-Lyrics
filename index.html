@@ -252,6 +252,7 @@
 #pdf-overlay {
   position: fixed; inset: 0; background: rgba(30,13,0,0.6);
   z-index: 9999; display: none; align-items: center; justify-content: center;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 #pdf-overlay.visible { display: flex; }
@@ -1649,6 +1650,8 @@ const SONGS = [
     'Naa main kisi ka naa koi mera',
     'Jo cheez maangi nahi wo mili',
     'Karta main kya aur bas chheen li',
+    '[S... D1.. P...]',
+    '[F Ch: Hmm Hmm Hmm]',
     '',
     'Main bhi sharaafat se jeeta magar',
     'Mujhko shareefon se lagta tha darr',

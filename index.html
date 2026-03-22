@@ -64,7 +64,7 @@
   .songs-container{padding:40px 56px;display:flex;flex-direction:column;gap:32px}
 
   /* ── Song Card ── */
-  .song-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:border-color .25s,box-shadow .25s,transform .2s}
+  .song-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;box-shadow:var(--shadow);transition:border-color .25s,box-shadow .25s,transform .2s}
   .song-card:hover{border-color:var(--border-s);box-shadow:var(--shadow-h);transform:translateY(-2px)}
   .card-accent{height:5px;width:100%}
   .song-card:nth-child(5n+1) .card-accent{background:linear-gradient(90deg,var(--saffron),var(--yellow))}
@@ -92,7 +92,7 @@
   .btn-save,.btn-cancel,.btn-reset{display:none}
 
   /* ── Media bar ── */
-  .media-bar{padding:10px 24px;border-bottom:1px solid rgba(244,98,15,.08);background:linear-gradient(90deg,rgba(244,98,15,.04),rgba(232,24,90,.04));display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .media-bar{padding:10px 24px;border-bottom:1px solid rgba(244,98,15,.08);background:linear-gradient(90deg,rgba(244,98,15,.04),rgba(232,24,90,.04));display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:73px;z-index:9;}
   .media-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);flex-shrink:0}
   .card-play-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--saffron),var(--rose));border:none;border-radius:8px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;padding:8px 20px;cursor:pointer;box-shadow:0 2px 10px rgba(244,98,15,.3);transition:all .18s;letter-spacing:.3px}
   .card-play-btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(244,98,15,.45)}
@@ -277,6 +277,10 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  /* existing properties stay unchanged */
 }
 
 .songs-container {
@@ -1663,6 +1667,7 @@ const SONGS = [
     'Naa main kisi ka naa koi mera',
     'Jo cheez maangi nahi wo mili',
     'Karta main kya aur bas chheen li',
+    '{3:15}',
     '[S... D1.. P...]',
     '[F Ch: Hmm Hmm Hmm]',
     '',

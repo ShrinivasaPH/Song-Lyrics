@@ -341,10 +341,10 @@
     <div class="meta">
       <div class="meta-pill"><span class="v">15</span><span class="k">Songs</span></div>
       <div class="meta-pill"><span class="v" id="edited-count">0</span><span class="k">Edited</span></div>
-      <button class="btn-download" onclick="downloadEdits()" style="margin-top:16px">
-        ⬇ Download My Edits
-      </button>
     </div>
+    <button class="btn-download" onclick="downloadEdits()" style="margin-top:16px">
+      ⬇ Download My Edits
+    </button>
   </div>
   <div class="songs-container" id="songs-container"></div>
 </main>
@@ -2033,7 +2033,7 @@ function invalidateStaleEdits(){
   SONGS.forEach(function(song){
     if(!edits[song.id]) return;             // no saved edit — nothing to check
     const currentHash = hashLines(song.lines);
-    if(hashes[song.id] && hashes[song.id] !== currentHash){
+    if(!hashes[song.id] || hashes[song.id] !== currentHash){
       // lines[] changed in code → discard stale localStorage for this song
       removeEdit(song.id);
       cleared++;

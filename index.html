@@ -192,7 +192,30 @@
 #sticky-player .sp-close:hover { color: var(--rose); background: rgba(232,24,90,0.08); }
 /* Push main content up so sticky player doesn't cover last card */
 .songs-container { padding-bottom: 100px; }
-@media(max-width:680px) { #sticky-player { left: 0; padding: 10px 16px; } }
+@media(max-width:680px) {
+  #sticky-player {
+    left: 0;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #sticky-player audio {
+    width: 100%;
+    min-width: unset;
+    flex: 1 1 100%;
+  }
+  #sticky-player .sp-title {
+    font-size: 13px;
+    flex: 1 1 calc(100% - 80px);
+  }
+  #sticky-player .sp-skip {
+    padding: 5px 7px;
+    font-size: 10px;
+  }
+  #scroll-top {
+    bottom: 160px; /* push above the taller mobile sticky player */
+  }
+}
 
 /* ── Skip buttons ── */
 .sp-skip {
@@ -310,7 +333,7 @@
   <div class="no-results" id="no-results">No songs found.</div>
 </aside>
 
-<main class="main">
+<main class="main"  id="main-content">
   <div class="hero">
     <div class="eyebrow">✦ Songbook Collection ✦</div>
     <h2>March 29<br/><span>Lyrics</span></h2>
@@ -2526,6 +2549,14 @@ function downloadEdits() {
     });
   }, 300);
 }
+
+/* ── Close sidebar on outside tap (mobile) ── */
+document.getElementById('main-content').addEventListener('click', function() {
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
 
 </script>
 

@@ -190,6 +190,17 @@
 .songs-container { padding-bottom: 100px; }
 @media(max-width:680px) { #sticky-player { left: 0; padding: 10px 16px; } }
 
+/* ── Skip buttons ── */
+.sp-skip {
+  background: none; border: 1.5px solid var(--border-s);
+  border-radius: 8px; color: var(--saffron);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 800;
+  padding: 5px 10px; cursor: pointer;
+  transition: all .18s; white-space: nowrap; flex-shrink: 0;
+}
+.sp-skip:hover { background: rgba(244,98,15,.08); border-color: var(--saffron); }
+
 </style>
 </head>
 <body>
@@ -1871,13 +1882,23 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+function skipTime(seconds) {
+  var audio = document.getElementById('sp-audio');
+  if (!audio) return;
+  audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + seconds));
+}
+
 </script>
 
 <!-- Sticky bottom player -->
 <div id="sticky-player">
   <span class="sp-label">▶ Now Playing</span>
   <span class="sp-title" id="sp-title">—</span>
+  <button class="sp-skip" onclick="skipTime(-10)">« 10s</button>
+  <button class="sp-skip" onclick="skipTime(-5)">« 5s</button>
   <audio id="sp-audio" controls></audio>
+  <button class="sp-skip" onclick="skipTime(5)">5s »</button>
+  <button class="sp-skip" onclick="skipTime(10)">10s »</button>
   <button class="sp-close" onclick="closeSticky()" title="Close">✕</button>
 </div>
 

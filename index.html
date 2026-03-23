@@ -2449,11 +2449,6 @@ window.addEventListener('DOMContentLoaded', function() {
 function downloadEdits() {
   var edits = loadEdits();
 
-  if (Object.keys(edits).length === 0) {
-    alert('No edits saved yet. Edit a song first, then download.');
-    return;
-  }
-
   // Show loading overlay
   document.getElementById('pdf-overlay').classList.add('visible');
 

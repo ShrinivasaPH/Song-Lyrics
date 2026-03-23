@@ -2455,15 +2455,16 @@ function downloadEdits() {
   // Build a hidden, clean print-ready div with all edited songs
   var printDiv = document.createElement('div');
   printDiv.style.cssText = [
-    'position:fixed', 'top:0', 'left:0',
-    'width:794px',          // A4 width in px at 96dpi
-    'background:#fff',
+    'position:absolute',
+    'top:0',
+    'left:-9999px',          // off-screen but fully rendered
+    'width:794px',           // A4 width in px at 96dpi
+    'background:#ffffff',
     'padding:40px 48px',
     'font-family:Georgia,serif',
     'font-size:14px',
     'line-height:1.9',
     'color:#1e0d00',
-    'z-index:-1',
     'pointer-events:none',
   ].join(';');
 

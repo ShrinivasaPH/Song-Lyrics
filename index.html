@@ -194,9 +194,9 @@
 @media(max-width:680px) {
   #sticky-player {
     left: 0;
-    padding: 8px 12px;
+    padding: 10px 14px 12px;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     align-items: stretch;
   }
   #sticky-player .sp-row1 {
@@ -212,63 +212,69 @@
     width: 100%;
     overflow-x: auto;
   }
-
-  #sticky-player .sp-label { flex-shrink: 0; font-size: 9px; }
-  #sticky-player .sp-title { font-size: 13px; flex: 1; min-width: 0; }
-  #sticky-player .sp-close { flex-shrink: 0; }
-  #sticky-player audio { display: none; }
-  #sticky-player .sp-skip { padding: 4px 7px; font-size: 10px; flex-shrink: 0; }
-
-  /* ── Mobile custom seekbar row ── */
   #sticky-player .sp-row-seek {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
+    gap: 10px;
     padding: 2px 0;
   }
-  .sp-time {
-    font-size: 10px; font-weight: 700; color: var(--muted);
-    white-space: nowrap; flex-shrink: 0; min-width: 32px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-  .sp-time.sp-time-total { text-align: right; }
-  .sp-seek-track {
-    flex: 1; height: 5px; border-radius: 99px;
-    background: rgba(244,98,15,0.18);
-    position: relative; cursor: pointer;
-    /* larger tap target */
-    padding: 8px 0; margin: -8px 0;
-    box-sizing: content-box;
-  }
-  .sp-seek-fill {
-    height: 5px; border-radius: 99px;
-    background: linear-gradient(90deg, var(--saffron), var(--rose));
-    width: 0%; pointer-events: none;
-    position: relative; top: 0;
-    transition: width 0.1s linear;
-  }
-  .sp-seek-thumb {
-    width: 14px; height: 14px; border-radius: 50%;
-    background: var(--saffron);
-    box-shadow: 0 1px 6px rgba(244,98,15,0.45);
-    position: absolute; top: 50%; transform: translate(-50%, -50%);
-    left: 0%; pointer-events: none;
-    transition: left 0.1s linear;
-  }
-  /* play/pause mini button on mobile */
-  .sp-playpause {
-    background: linear-gradient(135deg, var(--saffron), var(--rose));
-    border: none; border-radius: 50%;
-    width: 32px; height: 32px; flex-shrink: 0;
-    color: #fff; font-size: 13px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(244,98,15,0.35);
-    transition: transform .15s, box-shadow .15s;
-  }
-  .sp-playpause:active { transform: scale(0.92); }
 }
+
+/* ── Seekbar (always visible on mobile player) ── */
+#sticky-player .sp-row-seek {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+}
+.sp-time {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  white-space: nowrap; flex-shrink: 0; min-width: 30px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.3px;
+}
+.sp-time.sp-time-total { text-align: right; }
+.sp-seek-track {
+  flex: 1; height: 4px; border-radius: 99px;
+  background: rgba(244,98,15,0.15);
+  position: relative; cursor: pointer;
+  padding: 10px 0; margin: -10px 0;
+  box-sizing: content-box;
+  transition: transform 0.15s;
+}
+.sp-seek-track:hover { transform: scaleY(1.5); }
+.sp-seek-fill {
+  height: 4px; border-radius: 99px;
+  background: linear-gradient(90deg, var(--saffron), var(--rose));
+  width: 0%; pointer-events: none;
+  position: relative; top: 0;
+  transition: width 0.08s linear;
+}
+.sp-seek-thumb {
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--saffron);
+  box-shadow: 0 1px 8px rgba(244,98,15,0.5);
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  left: 0%; pointer-events: none;
+  transition: left 0.08s linear, transform 0.15s, box-shadow 0.15s;
+}
+.sp-seek-track:hover .sp-seek-thumb {
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 0 2px 12px rgba(244,98,15,0.6);
+}
+/* play/pause mini button */
+.sp-playpause {
+  background: linear-gradient(135deg, var(--saffron), var(--rose));
+  border: none; border-radius: 50%;
+  width: 34px; height: 34px; flex-shrink: 0;
+  color: #fff; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(244,98,15,0.4);
+  transition: transform .15s, box-shadow .15s;
+}
+.sp-playpause:active { transform: scale(0.9); }
+.sp-playpause:hover { transform: scale(1.08); box-shadow: 0 4px 16px rgba(244,98,15,0.5); }
 
 /* ── Skip buttons ── */
 .sp-skip {
@@ -2449,7 +2455,6 @@ function fmtTime(s) {
 }
 
 function updateSeekBar() {
-  if (!isMobile()) return;
   var audio = document.getElementById('sp-audio');
   var fill  = document.getElementById('sp-seek-fill');
   var thumb = document.getElementById('sp-seek-thumb');
@@ -2480,7 +2485,7 @@ function showMobileSeekUI(show) {
   var row   = document.getElementById('sp-row-seek');
   var ppBtn = document.getElementById('sp-playpause');
   if (!row || !ppBtn) return;
-  var v = (show && isMobile()) ? 'flex' : 'none';
+  var v = show ? 'flex' : 'none';
   row.style.display   = v;
   ppBtn.style.display = v;
 }
@@ -2528,6 +2533,7 @@ function showMobileSeekUI(show) {
       if (document.getElementById('sticky-player').classList.contains('visible')) {
         showMobileSeekUI(true);
       }
+      updateSeekBar();
     });
   }
 

@@ -216,8 +216,58 @@
   #sticky-player .sp-label { flex-shrink: 0; font-size: 9px; }
   #sticky-player .sp-title { font-size: 13px; flex: 1; min-width: 0; }
   #sticky-player .sp-close { flex-shrink: 0; }
-  #sticky-player audio { flex: 1; min-width: 160px; width: 100%; height: 32px; }
+  #sticky-player audio { display: none; }
   #sticky-player .sp-skip { padding: 4px 7px; font-size: 10px; flex-shrink: 0; }
+
+  /* ── Mobile custom seekbar row ── */
+  #sticky-player .sp-row-seek {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 2px 0;
+  }
+  .sp-time {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    white-space: nowrap; flex-shrink: 0; min-width: 32px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .sp-time.sp-time-total { text-align: right; }
+  .sp-seek-track {
+    flex: 1; height: 5px; border-radius: 99px;
+    background: rgba(244,98,15,0.18);
+    position: relative; cursor: pointer;
+    /* larger tap target */
+    padding: 8px 0; margin: -8px 0;
+    box-sizing: content-box;
+  }
+  .sp-seek-fill {
+    height: 5px; border-radius: 99px;
+    background: linear-gradient(90deg, var(--saffron), var(--rose));
+    width: 0%; pointer-events: none;
+    position: relative; top: 0;
+    transition: width 0.1s linear;
+  }
+  .sp-seek-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--saffron);
+    box-shadow: 0 1px 6px rgba(244,98,15,0.45);
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    left: 0%; pointer-events: none;
+    transition: left 0.1s linear;
+  }
+  /* play/pause mini button on mobile */
+  .sp-playpause {
+    background: linear-gradient(135deg, var(--saffron), var(--rose));
+    border: none; border-radius: 50%;
+    width: 32px; height: 32px; flex-shrink: 0;
+    color: #fff; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(244,98,15,0.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .sp-playpause:active { transform: scale(0.92); }
 }
 
 /* ── Skip buttons ── */
@@ -2340,6 +2390,7 @@ function cardPlayToggle(btn) {
   btn.innerHTML = '&#9646;&#9646; Pause';
   btn.classList.add('playing');
   stickyBar.classList.add('visible');
+  showMobileSeekUI(true);
 }
 
 function resetAllPlayBtns() {
@@ -2356,6 +2407,7 @@ function closeSticky() {
   resetAllPlayBtns();
   _activeSongId = null;
   document.getElementById('sticky-player').classList.remove('visible');
+  showMobileSeekUI(false);
 }
 
 // Sync button label when sticky controls are used directly
@@ -2386,6 +2438,105 @@ function skipTime(seconds) {
   if (!audio) return;
   audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + seconds));
 }
+
+/* ── Mobile custom seekbar ── */
+function isMobile() { return window.innerWidth <= 680; }
+
+function fmtTime(s) {
+  if (!isFinite(s)) return '--';
+  s = Math.floor(s);
+  return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2);
+}
+
+function updateSeekBar() {
+  if (!isMobile()) return;
+  var audio = document.getElementById('sp-audio');
+  var fill  = document.getElementById('sp-seek-fill');
+  var thumb = document.getElementById('sp-seek-thumb');
+  var cur   = document.getElementById('sp-cur');
+  var dur   = document.getElementById('sp-dur');
+  if (!audio || !fill) return;
+  var pct = (audio.duration && isFinite(audio.duration)) ? (audio.currentTime / audio.duration * 100) : 0;
+  fill.style.width  = pct + '%';
+  thumb.style.left  = pct + '%';
+  cur.textContent   = fmtTime(audio.currentTime);
+  dur.textContent   = fmtTime(audio.duration);
+}
+
+function toggleStickyPlay() {
+  var audio = document.getElementById('sp-audio');
+  var btn   = document.getElementById('sp-playpause');
+  if (!audio) return;
+  if (audio.paused) {
+    audio.play().catch(function(){});
+    if (btn) btn.innerHTML = '&#9646;&#9646;';
+  } else {
+    audio.pause();
+    if (btn) btn.innerHTML = '&#9654;';
+  }
+}
+
+function showMobileSeekUI(show) {
+  var row   = document.getElementById('sp-row-seek');
+  var ppBtn = document.getElementById('sp-playpause');
+  if (!row || !ppBtn) return;
+  var v = (show && isMobile()) ? 'flex' : 'none';
+  row.style.display   = v;
+  ppBtn.style.display = v;
+}
+
+/* Wire up seekbar events once DOM ready */
+(function() {
+  function initSeekbar() {
+    var audio = document.getElementById('sp-audio');
+    if (!audio) return;
+
+    audio.addEventListener('timeupdate',      updateSeekBar);
+    audio.addEventListener('loadedmetadata',  updateSeekBar);
+    audio.addEventListener('durationchange',  updateSeekBar);
+
+    audio.addEventListener('play', function() {
+      var btn = document.getElementById('sp-playpause');
+      if (btn) btn.innerHTML = '&#9646;&#9646;';
+    });
+    audio.addEventListener('pause', function() {
+      var btn = document.getElementById('sp-playpause');
+      if (btn) btn.innerHTML = '&#9654;';
+    });
+
+    var track = document.getElementById('sp-seek-track');
+    if (track) {
+      var dragging = false;
+      function seekFromEvent(e) {
+        var a = document.getElementById('sp-audio');
+        if (!a || !a.duration || !isFinite(a.duration)) return;
+        var rect = track.getBoundingClientRect();
+        var clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+        var pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        a.currentTime = pct * a.duration;
+        updateSeekBar();
+      }
+      track.addEventListener('mousedown',  function(e){ dragging = true; seekFromEvent(e); e.preventDefault(); });
+      track.addEventListener('touchstart', function(e){ dragging = true; seekFromEvent(e); }, {passive:true});
+      document.addEventListener('mousemove',  function(e){ if (dragging) seekFromEvent(e); });
+      document.addEventListener('touchmove',  function(e){ if (dragging) seekFromEvent(e); }, {passive:true});
+      document.addEventListener('mouseup',   function(){ dragging = false; });
+      document.addEventListener('touchend',  function(){ dragging = false; });
+    }
+
+    window.addEventListener('resize', function() {
+      if (document.getElementById('sticky-player').classList.contains('visible')) {
+        showMobileSeekUI(true);
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSeekbar);
+  } else {
+    initSeekbar();
+  }
+})();
 
 function playFromTime(seconds, songId) {
   var audio     = document.getElementById('sp-audio');
@@ -2520,16 +2671,25 @@ document.getElementById('main-content').addEventListener('click', function() {
 <!-- Sticky bottom player -->
 <div id="sticky-player">
   <span class="sp-row1">
-    <span class="sp-label">▶ Now Playing</span>
-    <span class="sp-title" id="sp-title">—</span>
-    <button class="sp-close" onclick="closeSticky()" title="Close">✕</button>
+    <span class="sp-label">&#9654; Now Playing</span>
+    <span class="sp-title" id="sp-title">&#8212;</span>
+    <button class="sp-close" onclick="closeSticky()" title="Close">&#10005;</button>
+  </span>
+  <span class="sp-row-seek" id="sp-row-seek" style="display:none">
+    <span class="sp-time" id="sp-cur">0:00</span>
+    <span class="sp-seek-track" id="sp-seek-track">
+      <div class="sp-seek-fill" id="sp-seek-fill"></div>
+      <div class="sp-seek-thumb" id="sp-seek-thumb"></div>
+    </span>
+    <span class="sp-time sp-time-total" id="sp-dur">&#8212;</span>
   </span>
   <span class="sp-row2">
-    <button class="sp-skip" onclick="skipTime(-10)">« 10s</button>
-    <button class="sp-skip" onclick="skipTime(-5)">« 5s</button>
+    <button class="sp-playpause" id="sp-playpause" onclick="toggleStickyPlay()" style="display:none">&#9654;</button>
+    <button class="sp-skip" onclick="skipTime(-10)">&#171; 10s</button>
+    <button class="sp-skip" onclick="skipTime(-5)">&#171; 5s</button>
     <audio id="sp-audio" controls></audio>
-    <button class="sp-skip" onclick="skipTime(5)">5s »</button>
-    <button class="sp-skip" onclick="skipTime(10)">10s »</button>
+    <button class="sp-skip" onclick="skipTime(5)">5s &#187;</button>
+    <button class="sp-skip" onclick="skipTime(10)">10s &#187;</button>
   </span>
 </div>
 

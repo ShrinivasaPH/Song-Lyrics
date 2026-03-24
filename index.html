@@ -230,9 +230,11 @@
   transition: all .18s; white-space: nowrap; flex-shrink: 0;
 }
 .sp-skip:hover { background: rgba(244,98,15,.08); border-color: var(--saffron); }
-#sticky-player .sp-row1,
-#sticky-player .sp-row2 {
-  display: contents;
+@media(min-width:681px){
+  #sticky-player .sp-row1,
+  #sticky-player .sp-row2 {
+    display: contents;
+  }
 }
 
 /* ── Timestamp cue button ── */

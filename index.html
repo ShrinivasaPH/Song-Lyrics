@@ -355,6 +355,115 @@
   #print-overlay { padding: 0 !important; }
 }
 
+/* ── Setlist floating panel ── */
+#setlist-btn {
+  position: fixed; bottom: 90px; left: 20px;
+  z-index: 400; background: linear-gradient(135deg, var(--saffron), var(--rose));
+  border: none; border-radius: 24px; color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px; font-weight: 800;
+  padding: 9px 16px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(244,98,15,0.4);
+  transition: all .18s; letter-spacing: .5px;
+}
+#setlist-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(244,98,15,0.5); }
+
+#setlist-panel {
+  display: none; position: fixed;
+  bottom: 140px; left: 20px;
+  width: 320px; max-height: 65vh;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  border: 1.5px solid var(--border-s);
+  z-index: 399; overflow: hidden;
+  flex-direction: column;
+}
+#setlist-panel.open { display: flex; }
+
+#setlist-panel-header {
+  padding: 14px 18px 12px;
+  background: linear-gradient(135deg, var(--saffron), var(--rose));
+  color: #fff; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+#setlist-panel-header h3 {
+  font-family: 'Fraunces', serif; font-size: 16px;
+  font-weight: 900; margin: 0;
+}
+#setlist-panel-header span {
+  font-size: 11px; opacity: .8; margin-top: 2px; display: block;
+}
+#setlist-close {
+  background: rgba(255,255,255,0.2); border: none;
+  color: #fff; width: 28px; height: 28px;
+  border-radius: 50%; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#setlist-close:hover { background: rgba(255,255,255,0.35); }
+
+#setlist-list {
+  overflow-y: auto; flex: 1;
+  padding: 8px 0;
+}
+#setlist-list::-webkit-scrollbar { width: 4px; }
+#setlist-list::-webkit-scrollbar-thumb { background: rgba(244,98,15,.25); border-radius: 2px; }
+
+.setlist-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 18px; font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--ink2); transition: background .15s;
+}
+.setlist-item:hover { background: rgba(244,98,15,.06); }
+.setlist-item.is-mine {
+  background: rgba(244,98,15,.07);
+  font-weight: 700; color: var(--ink);
+}
+.setlist-item.is-mine:hover { background: rgba(244,98,15,.13); }
+.setlist-item.is-medley {
+  padding-left: 36px; font-size: 12px;
+  color: var(--muted); font-style: italic;
+}
+.setlist-item.is-note {
+  padding: 4px 18px; font-size: 11px;
+  color: var(--rose); font-style: italic; font-weight: 600;
+}
+.setlist-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px; font-weight: 800;
+  color: var(--saffron); min-width: 22px;
+  background: rgba(244,98,15,.1);
+  border-radius: 4px; padding: 1px 5px;
+  text-align: center; flex-shrink: 0;
+}
+.setlist-num.medley-num {
+  background: rgba(155,111,74,.1);
+  color: var(--muted);
+}
+.setlist-mine-tag {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 11px; background: linear-gradient(135deg,var(--saffron),var(--rose));
+  color: #fff; border-radius: 10px;
+  padding: 1px 8px; font-weight: 800;
+}
+.setlist-item a {
+  color: inherit; text-decoration: none; flex: 1;
+}
+.setlist-item a:hover { text-decoration: underline; }
+.setlist-divider {
+  height: 1px; background: var(--border);
+  margin: 4px 18px;
+}
+
+@media(max-width:680px) {
+  #setlist-panel {
+    left: 10px; right: 10px; width: auto;
+    bottom: 130px;
+  }
+  #setlist-btn { bottom: 80px; left: 12px; }
+}
+
 </style>
 </head>
 <body>
@@ -434,6 +543,12 @@
 ════════════════════════════════════════════════════ */
 const SONGS = [
 
+{
+id: 'Song List', title: 'Song List', film: null,
+lines: [
+  
+]
+},
 {
   id:'song-1', title:'Dil Jalon Ka Dil Jala Ke', film:null,
   media: { type:'mp3', src:'March 29 Show/1) Dil Jalon Ka Dil Jala Ke - Zanjeer.mp3.mpeg' }, 
@@ -856,7 +971,7 @@ const SONGS = [
   media: { type:'mp3', src:'March 29 Show/Medley 29th.mpeg'},
   lines:[
 
-    '[Rambha Ho]',
+    '[Song: Rambha Ho]',
     '',
     'Rambha ho ho sambha ho ho (×2)',
     '',
@@ -919,7 +1034,7 @@ const SONGS = [
     '🎸🎸🎸🎸',
     '',
 
-    '[Koi Yahaan]',
+    '[Song: Koi Yahaan]',
     '',
     '🎸🎸🎸🎸',
     '[(Starts before 1st beat.)]',
@@ -953,7 +1068,7 @@ const SONGS = [
     '🤴👸🏻Auva auva..',
     'Tumse hai tumse pyaaaaaaar..',
     '',
-    '[Hari Om Hari]',
+    '[Song: Hari Om Hari]',
     '',
     "Chadhti laher jaise chadhti jawaani",
     "Khilti kali sa khila roop",
@@ -977,7 +1092,7 @@ const SONGS = [
     "Dam ki duwaa se , gham bhi khushi hai",
     "Choor nashe me... ye zindagi hai",
     '',
-    '[Darling]',
+    '[Song: Darling]',
     '',
     "Daaaaaarrrrrling",
     "Ankhon se aankhe char karne do",
@@ -2687,6 +2802,96 @@ document.getElementById('main-content').addEventListener('click', function() {
   }
 });
 
+/* ── Setlist panel ── */
+const FULL_SETLIST = [
+  { num:'0',  title:'Doston se pyar kiya',              film:'FILM Shaan',             mine:false },
+  { num:'1',  title:'Dil jalon ka dil jala ke',         film:'FILM Zanjeer',           mine:true,  songId:'song-1' },
+  { num:'2',  title:'Yaari hai imaan mera yaar',        film:'FILM Zanjeer',           mine:true,  songId:'song-2' },
+  { num:'3',  title:'John Jaani Janardhan',             film:'FILM Naseeb',            mine:true,  songId:'song-3' },
+  { num:'4',  title:'Thodasa tehro',                    film:'FILM Victoria No 203',   mine:false },
+  { num:'5',  title:'Jaaoon kahan bataye dil',          film:'FILM Choti Bahen',       mine:false },
+  { num:'6',  title:'Qamar patli nazar bijli',          film:'FILM Kahin din kahin raat', mine:false },
+  { num:'7',  title:'Dekho mausam kya bahar hai',       film:'FILM Opera House',       mine:false },
+  { num:'8',  title:'Dil ke jharoke mein tujko',        film:'FILM Brahmachari',       mine:true,  songId:'song-4' },
+  { num:'9',  title:'Zooby zooby zooby',                film:'FILM Dance Dance',       mine:false },
+  { num:'10', title:'Yeh desh hai veer jawanon ka',     film:'FILM Naya Daur',         mine:false },
+  { num:'11', title:'Tiki riki tiki riki',              film:'FILM Woh Kaun Thi',      mine:true,  songId:'song-5' },
+  { num:'12', title:'Yeh jhuki jhuki nigahen teri',     film:'FILM Aao Pyar Karen',    mine:false },
+  { num:'13', title:'Le kar hum deewana dil',           film:'FILM Yaadon Ki Baaraat', mine:true,  songId:'song-6' },
+  { num:'14', title:'Yamma yamma',                      film:'FILM Shaan',             mine:true,  songId:'song-7' },
+  { num:'15', title:'Ramba ho ho ho',                   film:'FILM Armaan',            mine:true,  songId:'song-8' },
+  { num:'a',  title:'Koi yahan nache nache',            film:'MEDLEY · FILM Disco Dancer', mine:false, medley:true },
+  { num:'b',  title:'Hari om hari',                     film:'MEDLEY · FILM Pyara Dushman', mine:false, medley:true },
+  { num:'c',  title:'Darling',                          film:'MEDLEY · FILM 7 Khoon Maaf', mine:false, medley:true },
+  { num:'16', title:'Raaz ki baat kah doon tho',        film:'FILM Dharma',            mine:false },
+  { num:'17', title:'O mungda mungda',                  film:'FILM Inkaar',            mine:false },
+  { num:'18', title:'Tuna tuna taa taa tuna',           film:'FILM Adharm',            mine:true,  songId:'song-9' },
+  { num:'19', title:'Laila O Laila',                    film:'FILM Qurbani',           mine:false },
+  { num:'20', title:'Nach meri bulbul',                 film:'SOLO · FILM Roti',       mine:false },
+  { num:'21', title:'Daroo Ki Botal',                   film:'FILM Majboor',           mine:true,  songId:'song-10' },
+  { note: '🎙 Short speech by Priya Karthik' },
+  { num:'22', title:'Naam Abdul hai mera',              film:'SOLO · FILM Shaan',      mine:false },
+  { num:'23', title:'Beedi jalaile jigar se piya',      film:'FILM Omkara',            mine:true,  songId:'song-11' },
+  { num:'24', title:'Na maangun sona chandi',           film:'DUET · FILM Bobby',      mine:false },
+  { num:'25', title:'Do ghoont mujhe bhi pila',         film:'FILM Jheel ke us paar',  mine:true,  songId:'song-12' },
+  { num:'26', title:'Subhan Allah, hasin chehra',       film:'FILM Kashmir Ki Kali',   mine:false },
+  { num:'27', title:'Khalnayak hoon main',              film:'FILM Khalnayak',         mine:true,  songId:'song-13' },
+  { num:'28', title:'Dil ne pyar kiya tha',             film:'FILM Shararat',          mine:false },
+  { num:'29', title:'Mehbooba Mehbooba',                film:'FILM Ajnabee',           mine:true,  songId:'song-14' },
+  { num:'30', title:'Ek pardesi mera dil',              film:'FILM Phagun',            mine:false },
+  { num:'31', title:'Khalibali ho gaya hai dil',        film:'FILM Padmaavat',         mine:true,  songId:'song-15' },
+];
+
+function buildSetlist() {
+  var list = document.getElementById('setlist-list');
+  if (!list) return;
+  var html = '';
+  FULL_SETLIST.forEach(function(item) {
+    // Note row (e.g. speech)
+    if (item.note) {
+      html += '<div class="setlist-item is-note">' + item.note + '</div>';
+      return;
+    }
+    var isMine   = item.mine;
+    var isMedley = item.medley;
+    var cls = 'setlist-item' + (isMine ? ' is-mine' : '') + (isMedley ? ' is-medley' : '');
+    var numCls = 'setlist-num' + (isMedley ? ' medley-num' : '');
+    var link = isMine && item.songId
+      ? '<a href="#' + item.songId + '" onclick="toggleSetlist()">' + item.title + '</a>'
+      : item.title;
+    var tag  = isMine ? '<span class="setlist-mine-tag">🎤 Chorus</span>' : '';
+    html += '<div class="' + cls + '">'
+      + '<span class="' + numCls + '">' + item.num + '</span>'
+      + '<span style="flex:1;min-width:0">'
+      + '<span style="display:block">' + link + '</span>'
+      + '<span style="font-size:11px;color:var(--muted);font-weight:400;font-style:normal">' + item.film + '</span>'
+      + '</span>'
+      + tag
+      + '</div>';
+    // Small divider after each main block
+    if (!isMedley) html += '<div class="setlist-divider"></div>';
+  });
+  list.innerHTML = html;
+}
+
+function toggleSetlist() {
+  var panel = document.getElementById('setlist-panel');
+  panel.classList.toggle('open');
+}
+
+// Close panel if user clicks outside it
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('setlist-panel');
+  var btn   = document.getElementById('setlist-btn');
+  if (panel && panel.classList.contains('open')) {
+    if (!panel.contains(e.target) && e.target !== btn) {
+      panel.classList.remove('open');
+    }
+  }
+});
+
+window.addEventListener('DOMContentLoaded', buildSetlist);
+
 </script>
 
 <!-- Sticky bottom player -->
@@ -2716,7 +2921,19 @@ document.getElementById('main-content').addEventListener('click', function() {
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 
+<!-- Setlist floating button + panel -->
+<button id="setlist-btn" onclick="toggleSetlist()">☰ Setlist</button>
 
+<div id="setlist-panel">
+  <div id="setlist-panel-header">
+    <div>
+      <h3>Show Setlist</h3>
+      <span>31 songs · 🎤 = your song</span>
+    </div>
+    <button id="setlist-close" onclick="toggleSetlist()">✕</button>
+  </div>
+  <div id="setlist-list"></div>
+</div>
 
 </body>
 </html>
